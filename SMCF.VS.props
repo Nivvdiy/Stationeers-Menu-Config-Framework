@@ -1,0 +1,9 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<StationeersDirectory>E:\DLLFiles\</StationeersDirectory><!-- Change this to the path to your Stationeers directory -->
+		<UnityEditorDirectory>E:\DLLFiles\</UnityEditorDirectory>
+		<StationeersModDirectory>$(StationeersDirectory)\BepInEx\plugins\StationeersMods\</StationeersModDirectory>
+		<ManagedDirectory>$(StationeersDirectory)\rocketstation_Data\Managed\</ManagedDirectory>
+		<StationeersModOutputFolder Condition=" '$(StationeersModOutputFolder)' == '' ">E:\Builds\</StationeersModOutputFolder>
+	</PropertyGroup>
+</Project>

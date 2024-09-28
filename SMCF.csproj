@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<!-- General Property Group -->
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+		<TargetFramework>net48</TargetFramework>
+		<OutputPath>bin\Debug</OutputPath>
+		<ModName>Stationeers-Menu-Config-Framework</ModName>
+		<ModAcronym>SMCF</ModAcronym>
+		<UserDir>$(HOMEDRIVE)$(HOMEPATH)</UserDir>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+	</PropertyGroup>
+	<!-- Debug Configuration -->
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>full</DebugType>
+		<Optimize>false</Optimize>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+		<Prefer32Bit>false</Prefer32Bit>
+	</PropertyGroup>
+	<!-- Release Configuration -->
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<DefineConstants>TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+		<Prefer32Bit>false</Prefer32Bit>
+	</PropertyGroup>
+	<!-- Import Props -->
+	<Import Project="$(SolutionDir)SMCF.VS.props" />
+	<PropertyGroup>
+		<TargetFramework>net35</TargetFramework>
+		<AssemblyName>SMCF</AssemblyName>
+		<Product>Stationeers-Menu-Config-Framework</Product>
+		<Version>0.0.0</Version>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>latest</LangVersion>
+		<RestoreAdditionalProjectSources>
+			https://api.nuget.org/v3/index.json;
+			https://nuget.bepinex.dev/v3/index.json;
+			https://nuget.daxcess.io/v3/index.json
+		</RestoreAdditionalProjectSources>
+		<RootNamespace>Stationeers_Menu_Config_Framework</RootNamespace>
+	</PropertyGroup>
+	<!-- References -->
+	<ItemGroup>
+		<PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+		<PackageReference Include="BepInEx.Core" Version="5.*" />
+		<PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
+		<PackageReference Include="UnityEngine.Modules" Version="2021.2.13" IncludeAssets="compile" />
+		<!-- Unity References -->
+		<Reference Include="Unity.TextMeshPro">
+			<HintPath>$(ManagedDirectory)Unity.TextMeshPro.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.UI">
+			<HintPath>$(ManagedDirectory)UnityEngine.UI.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Assembly-CSharp">
+			<HintPath>$(ManagedDirectory)Assembly-CSharp.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<!-- Other References -->
+		<Reference Include="StationeersMods">
+			<HintPath>$(StationeersModDirectory)StationeersMods.dll</HintPath>
+		</Reference>
+		<Reference Include="StationeersMods.Interface">
+			<HintPath>$(StationeersModDirectory)StationeersMods.Interface.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
+	<!-- Compile Items -->
+	<ItemGroup>
+		<_CopyItemsGameData Include="$(ProjectDir)\GameData\**\*.*" />
+		<_CopyItemsAbout Include="$(ProjectDir)\About\**\*.*" />
+	</ItemGroup>
+	<!-- Folder Structure -->
+	<ItemGroup>
+		<Folder Include="GameData\Images\" />
+	</ItemGroup>
+	<!-- Update Version On Release -->
+	<Target Name="RunUpdateVersionScript" BeforeTargets="BeforeBuild" Condition=" '$(Configuration)' == 'Release' ">
+		<Message Importance="High" Text="Update version" />
+		<Exec Command="powershell -executionpolicy Unrestricted -command &quot;&amp; { .\UpdateVersion.ps1 } &quot;" />
+	</Target>
+	<!-- Post-Build Events -->
+	<Target Name="CustomAfterBuild" AfterTargets="Build">
+		<Message Importance="High" Text="Start building project files" />
+		<Exec Command="&quot;B:\pdb2mdb.exe&quot; &quot;$(ProjectDir)\bin\Debug\$(ModAcronym).dll&quot;" Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
+		<RemoveDir Directories="$(StationeersModOutputFolder)\$(ModName)" />
+		<Copy SourceFiles="$(ProjectDir)\$(ModAcronym).info" DestinationFolder="$(StationeersModOutputFolder)$(ModName)" ContinueOnError="false" />
+		<Copy SourceFiles="$(ProjectDir)bin\Debug\$(ModAcronym).dll" DestinationFolder="$(StationeersModOutputFolder)$(ModName)" ContinueOnError="true" />
+		<Copy SourceFiles="@(_CopyItemsGameData)" DestinationFolder="$(StationeersModOutputFolder)$(ModName)\GameData\%(RecursiveDir)" ContinueOnError="true" />
+		<Copy SourceFiles="@(_CopyItemsAbout)" DestinationFolder="$(StationeersModOutputFolder)$(ModName)\About\%(RecursiveDir)" ContinueOnError="true" />
+		<Copy SourceFiles="$(ProjectDir)\bin\Debug\$(ModAcronym).dll.mdb" DestinationFolder="$(StationeersModOutputFolder)$(ModName)" ContinueOnError="true" Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
+	</Target>
+	<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+	<ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.*" PrivateAssets="all" />
+	</ItemGroup>
+</Project>
