@@ -1,19 +1,20 @@
-﻿using BepInEx;
-using BepInEx.Logging;
+﻿using System;
 using HarmonyLib;
 using StationeersMods.Interface;
-using System;
 
-namespace Stationeers_Menu_Config_Framework {
+namespace SMCF {
 	public class SmcfMod : ModBehaviour {
 		private static SmcfMod _instance;
-		private static object instanceLock = new();
-		public static SmcfMod Instance {
-			get {
-				if(_instance == null) {
-					lock(instanceLock) {
-						if(_instance == null) {
-							_instance = new SmcfMod();
+		private static readonly object InstanceLock = new();
+
+		public static SmcfMod Instance
+		{
+			get
+			{
+				if (_instance == null) {
+					lock (InstanceLock) {
+						if (_instance == null) {
+							_instance = new();
 						}
 					}
 				}
@@ -24,9 +25,11 @@ namespace Stationeers_Menu_Config_Framework {
 
 		public override void OnLoaded(ContentHandler contentHandler) {
 			try {
-				Harmony harmony = new Harmony("Stationeers-Menu-Config-Framework");
-				harmony.PatchAll();
-			} catch(Exception e) {
+				if (!Harmony.HasAnyPatches("Stationeers-Menu-Config-Framework")) {
+					Harmony harmony = new Harmony("Stationeers-Menu-Config-Framework");
+					harmony.PatchAll();
+				}
+			} catch (Exception e) {
 				Console.WriteLine(e);
 				throw;
 			}
